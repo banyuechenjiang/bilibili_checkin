@@ -81,17 +81,6 @@ class BilibiliTask:
         except Exception as e:
             return False, str(e)
             
-    def live_sign(self):
-        """直播签到"""
-        try:
-            res = requests.get('https://api.live.bilibili.com/xlive/web-ucenter/v1/sign/DoSign',
-                             headers=self.headers)
-            if res.json()['code'] == 0:
-                return True, None
-            else:
-                return False, res.json().get('message', '未知错误')
-        except Exception as e:
-            return False, str(e)
             
     def manga_sign(self):
         """漫画签到"""
@@ -101,6 +90,8 @@ class BilibiliTask:
                               data={'platform': 'ios'})
             if res.json()['code'] == 0:
                 return True, None
+            elif code == 1:
+                return False, "不能重复签到"
             else:
                 return False, res.json().get('message', '未知错误')
         except Exception as e:
@@ -170,8 +161,7 @@ def main():
     # 执行每日任务
     tasks = {
         '分享视频': bili.share_video(),
-        '观看视频': bili.watch_video('BV1rtkiYUEvy'),  # 观看任意一个视频
-        '直播签到': bili.live_sign(),
+        '观看视频': bili.watch_video('BV18x411v7KX'),  # 观看任意一个视频
         '漫画签到': bili.manga_sign()
     }
     
