@@ -88,14 +88,22 @@ class BilibiliTask:
             res = requests.post('https://manga.bilibili.com/twirp/activity.v1.Activity/ClockIn',
                               headers=self.headers,
                               data={'platform': 'ios'})
-            if res.json()['code'] == 0:
+            res.raise_for_status()
+            
+            response_data = res.json()
+            api_code = response_data.get('code')
+            
+            if api_code == 0:
                 return True, None
-            elif code == 1:
-                return False, "不能重复签到"
+            elif api_code == 1:
+                message = response_data.get('message') or response_data.get('msg') or "不能重复签到"
+                return False, message
             else:
-                return False, res.json().get('message', '未知错误')
+                message = response_data.get('message') or response_data.get('msg') or '未知错误'
+                return False, message
         except Exception as e:
-            return False, str(e)
+            return False, f"漫画签到发生未知错误: {str(e)}"
+            
             
     def get_user_info(self):
         """获取用户信息"""
